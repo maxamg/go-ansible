@@ -5,3 +5,4 @@ go_server_host: 192.168.33.11
 go_server_port: 8153
 java_home: /usr/lib/jvm/java-7-openjdk-amd64/jre
 work_dir: /var/lib/go-agent
+go-agent-cores: "{{ ansible_processor_cores }}"

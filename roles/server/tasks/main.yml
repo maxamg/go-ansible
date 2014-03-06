@@ -1,0 +1,31 @@
+---
+- name: install go-server dependencies
+  apt: pkg={{ item }} state=latest
+  sudo: yes
+  with_items:
+    - python-apt
+    - python-pycurl
+    - curl
+    - unzip
+    - openjdk-7-jre-headless
+
+
+#- name: update apt-cache
+#  apt_repository: repo='deb http://download01.thoughtworks.com/go/debian contrib' state=present update_cache=yes
+#  sudo: yes
+
+- name: download go-server
+  command: curl http://download01.thoughtworks.com/go/debian/contrib/go-server-13.4.1-18342.deb  -o /tmp/go-server-13.4.1-18342.deb creates=/tmp/go-server-13.4.1-18342.deb
+
+- name: install go-server
+  command: sudo dpkg -i /tmp/go-server-13.4.1-18342.deb
+
+- name: Copy server defaults
+  template: src=go-server-defaults dest=/etc/default/go-server owner=root group=root mode=444
+  notify: restart go-server
+
+- name: Start go-server
+  service: name=go-server state=started
+
+- name: Hit go-server URI
+  uri: url=http://localhost:8153/go/home
