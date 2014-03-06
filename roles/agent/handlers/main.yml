@@ -1,0 +1,3 @@
+---
+- name: restart go-agent
+  service: name=go-agent{{ go_agent_instance }} state=restarted

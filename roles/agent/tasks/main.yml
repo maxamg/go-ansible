@@ -1,0 +1,48 @@
+---
+- name: install python-apt
+  apt: pkg=python-apt state=latest
+  sudo: yes
+
+- name: install python-pycurl
+  apt: pkg=python-pycurl state=latest
+  sudo: yes
+
+- name: install curl
+  apt: pkg=curl state=latest
+  sudo: yes
+
+- name: install java7
+  apt: pkg=openjdk-7-jre-headless state=latest
+  sudo: yes
+
+#- name: update apt-cache
+#  apt_repository: repo='deb http://download01.thoughtworks.com/go/debian contrib' state=present update_cache=yes
+#  sudo: yes
+
+- name: download go-agent
+  command: curl http://download01.thoughtworks.com/go/debian/contrib/go-agent-13.4.1-18342.deb  -o /tmp/go-agent-13.4.1-18342.deb creates=/tmp/go-agent-13.4.1-18342.deb
+
+- name: install go-agent
+  command: sudo dpkg -i /tmp/go-agent-13.4.1-18342.deb
+
+#TODO: add multiple go agent logic
+
+- name: Copy agent configuration
+  template: src=go-agent-service dest=/etc/init.d/go-agent{{ go_agent_instance }} owner=root group=root mode=0555
+  notify: restart go-agent
+
+- name: Copy agent defaults
+  template: src=go-agent-defaults dest=/etc/default/go-agent{{ go_agent_instance }} owner=root group=root mode=444
+  notify: restart go-agent
+
+- name: Copy agent sh
+  template: src=go-agent-sh dest=/usr/share/go-agent/agent{{ go_agent_instance }}.sh owner=go group=go mode=555
+
+- name: Create autoregister properties path
+  action: file path=/var/lib/go-agent{{ go_agent_instance }}/config state=directory
+
+- name: Copy autoregister config
+  template: src=autoregister.properties dest=/var/lib/go-agent{{ go_agent_instance }}/config/autoregister.properties owner=go group=go mode=444
+
+- name: Start go-agent{{ go_agent_instance }}
+  service: name=go-agent{{ go_agent_instance }} state=started

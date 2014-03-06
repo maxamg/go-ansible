@@ -1,0 +1,8 @@
+---
+
+- hosts: go-agents
+  user: vagrant
+  # remote_user: user
+  sudo: yes
+  roles:
+    - role: agent
